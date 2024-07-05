@@ -14,8 +14,7 @@ class MovieController extends Controller
      */
     public function index()
     {
-        $movies = Movie::all(); // Fetch all movies
-
+        $movies = Movie::with('category')->get(); // Fetch all movies with their categories
         return response()->json($movies); // Return movies as JSON for Axios
     }
 
@@ -27,7 +26,7 @@ class MovieController extends Controller
      */
     public function show($id)
 {
-    $movie = Movie::with('comments.user', 'ratings')->findOrFail($id);
+    $movie = Movie::with('comments.user', 'ratings', 'category')->findOrFail($id); // Include category
     $averageRating = $movie->averageRating();
     return response()->json([
         'movie' => $movie,
@@ -37,6 +36,7 @@ class MovieController extends Controller
     ]);
 }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -44,22 +44,24 @@ class MovieController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|string',
-            'summary' => 'required|string',
-            'genre' => 'required|string',
-            'release_date' => 'nullable|date',
-            'runtime_minutes' => 'nullable|string', // Ensure this matches the string type
-            'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
-            'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
-            'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
-        ]);
-    
-        $movie = Movie::create($validatedData);
-    
-        return response()->json($movie, 201);
-    }
+{
+    $validatedData = $request->validate([
+        'name' => 'required|string',
+        'summary' => 'required|string',
+        'genre' => 'required|string',
+        'release_date' => 'nullable|date',
+        'runtime_minutes' => 'nullable|string', // Ensure this matches the string type
+        'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
+        'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
+        'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
+        'category_id' => 'required|exists:categories,id', // Validate that category_id exists in categories table
+    ]);
+
+    $movie = Movie::create($validatedData);
+
+    return response()->json($movie, 201);
+}
+
 
     /**
      * Update the specified resource in storage.
@@ -79,18 +81,20 @@ class MovieController extends Controller
             'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
             'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
             'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
+            'category_id' => 'required|exists:categories,id', // Validate that category_id exists in categories table
         ]);
-
+    
         $movie = Movie::find($id);
-
+    
         if (!$movie) {
             return response()->json(['error' => 'Movie not found'], 404);
         }
-
+    
         $movie->update($validatedData);
-
+    
         return response()->json($movie);
     }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -98,16 +102,17 @@ class MovieController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        $movie = Movie::find($id);
+            public function destroy($id)
+        {
+            $movie = Movie::find($id);
 
-        if (!$movie) {
-            return response()->json(['error' => 'Movie not found'], 404);
+            if (!$movie) {
+                return response()->json(['error' => 'Movie not found'], 404);
+            }
+
+            $movie->delete();
+
+            return response()->json(['message' => 'Movie deleted successfully']);
         }
 
-        $movie->delete();
-
-        return response()->json(['message' => 'Movie deleted successfully']);
-    }
 }

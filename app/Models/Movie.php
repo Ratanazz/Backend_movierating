@@ -7,23 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Movie extends Model
 {
-use HasFactory;
+    use HasFactory;
 
-   protected $fillable = [
-       'name',
-       'summary',
-       'genre',
-       'release_date',
-       'rating',
-       'runtime_minutes',
-       'image_poster',
-       'trailer',
-       'rated_type',
-       'director',
-       'wrtitter',
-       'production',
-   ];
-   public function comments()
+    protected $fillable = [
+        'name',
+        'summary',
+        'genre',
+        'release_date',
+        'rating',
+        'runtime_minutes',
+        'image_poster',
+        'trailer',
+        'rated_type',
+        'director',
+        'wrtitter',
+        'production',
+        'category_id', // Add category_id to fillable
+    ];
+
+    public function comments()
     {
         return $this->hasMany(Comment::class);
     }
@@ -37,8 +39,18 @@ use HasFactory;
     {
         return $this->ratings()->avg('rating');
     }
-//For fetch comment from youtube it extract video id from Trailer url
-public function getYoutubeVideoIdAttribute()
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class);
+    }
+
+    // For fetch comment from youtube it extract video id from Trailer url
+    public function getYoutubeVideoIdAttribute()
     {
         $url = $this->trailer;
         $parsedUrl = parse_url($url);
@@ -53,5 +65,5 @@ public function getYoutubeVideoIdAttribute()
     }
 
     protected $appends = ['youtube_video_id'];
+    
 }
-

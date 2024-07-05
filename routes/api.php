@@ -7,6 +7,12 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\YouTubeCommentsController;
+use App\Http\Controllers\CategoryController;
+
+Route::resource('categories', CategoryController::class);
+
+// Route to get movies by category
+Route::get('categories/{category}/movies', [CategoryController::class, 'movies']);
 
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'getUser']);
 Route::prefix('movies')->group(function () {
