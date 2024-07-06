@@ -54,9 +54,12 @@ class MovieController extends Controller
         'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
         'image_poster' => 'nullable|url', 
         'trailer' => 'nullable|url', 
-        'category_id' => 'nullable|exists:categories,id', // Validate that category_id exists in categories table
+        'category_id' => 'nullable', // Validate that category_id exists in categories table
     ]);
-
+    // If category_id is not provided, set it to a default value
+    if (!isset($validatedData['category_id'])) {
+        $validatedData['category_id'] = 1; // Default category_id value
+    }
     $movie = Movie::create($validatedData);
 
     return response()->json($movie, 201);
@@ -81,7 +84,7 @@ class MovieController extends Controller
             'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
             'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
             'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
-            'category_id' => 'nullable|exists:categories,id', // Validate that category_id exists in categories table
+            'category_id' => 'nullable', // Validate that category_id exists in categories table
         ]);
     
         $movie = Movie::find($id);
@@ -89,6 +92,10 @@ class MovieController extends Controller
         if (!$movie) {
             return response()->json(['error' => 'Movie not found'], 404);
         }
+        // If category_id is not provided, set it to a default value
+    if (!isset($validatedData['category_id'])) {
+        $validatedData['category_id'] = 1; // Default category_id value
+    }
     
         $movie->update($validatedData);
     
