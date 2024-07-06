@@ -50,11 +50,11 @@ class MovieController extends Controller
         'summary' => 'required|string',
         'genre' => 'required|string',
         'release_date' => 'nullable|date',
-        'runtime_minutes' => 'nullable|string', // Ensure this matches the string type
+        'runtime_minutes' => 'nullable|string',
         'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
-        'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
-        'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
-        'category_id' => 'required|exists:categories,id', // Validate that category_id exists in categories table
+        'image_poster' => 'nullable|url', 
+        'trailer' => 'nullable|url', 
+        'category_id' => 'nullable|exists:categories,id', // Validate that category_id exists in categories table
     ]);
 
     $movie = Movie::create($validatedData);
@@ -81,7 +81,7 @@ class MovieController extends Controller
             'rating' => 'required|numeric|between:0,10', // Correct range is 0 to 10
             'image_poster' => 'nullable|url', // Optional: must be a valid URL if provided
             'trailer' => 'nullable|url', // Optional: must be a valid URL if provided
-            'category_id' => 'required|exists:categories,id', // Validate that category_id exists in categories table
+            'category_id' => 'nullable|exists:categories,id', // Validate that category_id exists in categories table
         ]);
     
         $movie = Movie::find($id);
